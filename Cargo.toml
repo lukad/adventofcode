@@ -1,0 +1,2 @@
+[workspace]
+members = ["adventofcode-2021"]
