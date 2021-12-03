@@ -1,2 +1,2 @@
 [workspace]
-members = ["adventofcode-2021"]
+members = ["2021/*"]
