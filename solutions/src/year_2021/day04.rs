@@ -1,5 +1,4 @@
-use std::env;
-use std::io::{self, BufRead};
+use aoc::aoc;
 
 #[derive(Debug, Clone, Copy)]
 enum Cell {
@@ -95,11 +94,8 @@ impl Board {
     }
 }
 
-fn parse_game<B: BufRead>(mut buf: B) -> (Vec<i32>, Vec<Board>) {
-    let mut s = "".to_string();
-    buf.read_to_string(&mut s).unwrap();
-
-    let (nums, boards) = s.split_once("\n\n").unwrap();
+fn parse_game(input: &str) -> (Vec<i32>, Vec<Board>) {
+    let (nums, boards) = input.split_once("\n\n").unwrap();
 
     let nums: Vec<i32> = nums.split(",").map(|s| s.parse().unwrap()).collect();
     let boards: Vec<Board> = boards
@@ -110,8 +106,9 @@ fn parse_game<B: BufRead>(mut buf: B) -> (Vec<i32>, Vec<Board>) {
     (nums, boards)
 }
 
-fn solution<B: BufRead>(buf: B) -> i32 {
-    let (nums, mut boards) = parse_game(buf);
+#[aoc(year = 2021, day = 4, part = "one")]
+pub fn solve_2021_04_01(input: &str) -> i32 {
+    let (nums, mut boards) = parse_game(input);
 
     for num in nums.iter() {
         for board in boards.iter_mut() {
@@ -124,8 +121,9 @@ fn solution<B: BufRead>(buf: B) -> i32 {
     0
 }
 
-fn solution_part_two<B: BufRead>(buf: B) -> i32 {
-    let (nums, mut boards) = parse_game(buf);
+#[aoc(year = 2021, day = 4, part = "two")]
+pub fn solve_2021_04_02(input: &str) -> i32 {
+    let (nums, mut boards) = parse_game(input);
 
     let mut last_winner_score = 0;
 
@@ -140,18 +138,10 @@ fn solution_part_two<B: BufRead>(buf: B) -> i32 {
     last_winner_score
 }
 
-fn main() {
-    let stdin = io::stdin();
-    match env::args().nth(1).as_ref().map(|x| x.as_str()) {
-        None => println!("{:?}", solution(stdin.lock())),
-        Some("--part-two") => println!("{:?}", solution_part_two(stdin.lock())),
-        _ => println!("uknown options"),
-    }
-}
-
 #[test]
-fn test_01() {
-    let buf = "7,4,9,5,11,17,23,2,0,14,21,24,10,16,13,6,15,25,12,22,18,20,8,19,3,26,1
+fn test() {
+    use aoc::Solution;
+    let input = "7,4,9,5,11,17,23,2,0,14,21,24,10,16,13,6,15,25,12,22,18,20,8,19,3,26,1
 
 22 13 17 11  0
  8  2 23  4 24
@@ -169,8 +159,7 @@ fn test_01() {
 10 16 15  9 19
 18  8 23 26 20
 22 11 13  6  5
- 2  0 12  3  7"
-        .as_bytes();
-    assert_eq!(solution(buf), 4512);
-    assert_eq!(solution_part_two(buf), 1924);
+ 2  0 12  3  7";
+    assert_eq!(solve_2021_04_01.solve(input), 4512);
+    assert_eq!(solve_2021_04_02.solve(input), 1924);
 }
