@@ -55,7 +55,7 @@ pub fn aoc(args: TokenStream, input: TokenStream) -> TokenStream {
                 }
             }
 
-            fn solve(&self, input: &str) -> i32 {
+            fn solve(&self, input: &str) -> Box<dyn std::fmt::Display> {
                 #block
             }
         }

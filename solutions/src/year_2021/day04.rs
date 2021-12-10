@@ -107,22 +107,22 @@ fn parse_game(input: &str) -> (Vec<i32>, Vec<Board>) {
 }
 
 #[aoc(year = 2021, day = 4, part = "one")]
-pub fn solve_2021_04_01(input: &str) -> i32 {
+pub fn solve_2021_04_01(input: &str) -> Box<i32> {
     let (nums, mut boards) = parse_game(input);
 
     for num in nums.iter() {
         for board in boards.iter_mut() {
             if board.mark(*num) {
-                return board.unmarked_sum() * num;
+                return Box::new(board.unmarked_sum() * num);
             }
         }
     }
 
-    0
+    Box::new(0)
 }
 
 #[aoc(year = 2021, day = 4, part = "two")]
-pub fn solve_2021_04_02(input: &str) -> i32 {
+pub fn solve_2021_04_02(input: &str) -> Box<i32> {
     let (nums, mut boards) = parse_game(input);
 
     let mut last_winner_score = 0;
@@ -135,7 +135,7 @@ pub fn solve_2021_04_02(input: &str) -> i32 {
         }
     }
 
-    last_winner_score
+    Box::new(last_winner_score)
 }
 
 #[test]
@@ -160,6 +160,12 @@ fn test() {
 18  8 23 26 20
 22 11 13  6  5
  2  0 12  3  7";
-    assert_eq!(solve_2021_04_01.solve(input), 4512);
-    assert_eq!(solve_2021_04_02.solve(input), 1924);
+    assert_eq!(
+        solve_2021_04_01.solve(input).to_string(),
+        "4512".to_string()
+    );
+    assert_eq!(
+        solve_2021_04_02.solve(input).to_string(),
+        "1924".to_string()
+    );
 }

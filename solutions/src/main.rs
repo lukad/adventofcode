@@ -44,6 +44,9 @@ fn main() {
     solutions.push(Box::new(year_2021::day03::solve_2021_03_01));
     solutions.push(Box::new(year_2021::day04::solve_2021_04_01));
     solutions.push(Box::new(year_2021::day04::solve_2021_04_02));
+    solutions.push(Box::new(year_2021::day06::solve_2021_06_01));
+    solutions.push(Box::new(year_2021::day10::solve_2021_10_01));
+    solutions.push(Box::new(year_2021::day10::solve_2021_10_02));
 
     let part = match opts.part {
         Part::One => aoc::Part::One,
