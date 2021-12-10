@@ -7,7 +7,7 @@ fn transpose<T: Clone>(v: Vec<Vec<T>>) -> Vec<Vec<T>> {
 }
 
 #[aoc(year = 2021, day = 3, part = "one")]
-pub fn solve_2021_03_01(input: &str) -> i32 {
+pub fn solve_2021_03_01(input: &str) -> String {
     let nums: Vec<Vec<usize>> = input
         .lines()
         .map(|line| {
@@ -35,7 +35,7 @@ pub fn solve_2021_03_01(input: &str) -> i32 {
 
     let mask = (1 << row_size) - 1;
     let epsilon = !gamma & mask;
-    (gamma * epsilon) as i32
+    Box::new(gamma * epsilon)
 }
 
 #[test]
@@ -43,5 +43,5 @@ fn test() {
     use aoc::Solution;
     let input =
         "00100\n11110\n10110\n10111\n10101\n01111\n00111\n11100\n10000\n11001\n00010\n01010\n";
-    assert_eq!(solve_2021_03_01.solve(input), 198);
+    assert_eq!(solve_2021_03_01.solve(input).to_string(), "198".to_string());
 }

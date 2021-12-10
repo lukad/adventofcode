@@ -1,7 +1,7 @@
 use aoc::aoc;
 
 #[aoc(year = 2021, day = 2, part = "one")]
-fn solve_2021_02_01(input: &str) -> i32 {
+fn solve_2021_02_01(input: &str) -> Box<i32> {
     let mut x = 0;
     let mut y = 0;
 
@@ -15,11 +15,11 @@ fn solve_2021_02_01(input: &str) -> i32 {
             _ => panic!("Unknown direction"),
         }
     }
-    x * y
+    Box::new(x * y)
 }
 
 #[aoc(year = 2021, day = 2, part = "two")]
-fn solve_2021_02_02(input: &str) -> i32 {
+fn solve_2021_02_02(input: &str) -> Box<i32> {
     let mut aim = 0;
     let mut x = 0;
     let mut y = 0;
@@ -37,13 +37,13 @@ fn solve_2021_02_02(input: &str) -> i32 {
             _ => panic!("Unknown direction"),
         }
     }
-    x * y
+    Box::new(x * y)
 }
 
 #[test]
 fn test() {
     use aoc::Solution;
     let input = "forward 5\ndown 5\nforward 8\nup 3\ndown 8\nforward 2\n";
-    assert_eq!(solve_2021_02_01.solve(input), 150);
-    assert_eq!(solve_2021_02_02.solve(input), 900);
+    assert_eq!(solve_2021_02_01.solve(input).to_string(), "150".to_string());
+    assert_eq!(solve_2021_02_02.solve(input).to_string(), "900".to_string());
 }
