@@ -49,6 +49,8 @@ fn main() {
         Box::new(year_2021::day06::solve_2021_06_01),
         Box::new(year_2021::day10::solve_2021_10_01),
         Box::new(year_2021::day10::solve_2021_10_02),
+        Box::new(year_2021::day09::solve_2021_09_01),
+        Box::new(year_2021::day09::solve_2021_09_02),
         Box::new(year_2021::day11::solve_2021_11_01),
         Box::new(year_2021::day11::solve_2021_11_02),
         Box::new(year_2021::day12::solve_2021_12_01),
