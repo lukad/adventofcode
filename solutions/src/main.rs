@@ -51,6 +51,8 @@ fn main() {
         Box::new(year_2021::day10::solve_2021_10_02),
         Box::new(year_2021::day11::solve_2021_11_01),
         Box::new(year_2021::day11::solve_2021_11_02),
+        Box::new(year_2021::day12::solve_2021_12_01),
+        Box::new(year_2021::day12::solve_2021_12_02),
     ];
 
     let part = match opts.part {
