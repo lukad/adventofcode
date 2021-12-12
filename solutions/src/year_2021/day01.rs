@@ -1,42 +1,29 @@
-use itermore::IterMore;
-
 use aoc::aoc;
+
+fn solve(input: &str, window_size: usize) -> usize {
+    input
+        .trim()
+        .lines()
+        .map(|line| line.parse::<_>().unwrap())
+        .collect::<Vec<usize>>()
+        .windows(window_size)
+        .fold(0, |acc, window| {
+            if window.last().unwrap() > window.first().unwrap() {
+                acc + 1
+            } else {
+                acc
+            }
+        })
+}
 
 #[aoc(year = 2021, day = 1, part = "one")]
 pub fn solve_2021_01_01(input: &str) -> Box<i32> {
-    let mut result = 0;
-    let mut last = None;
-    for line in input.lines() {
-        let num: i32 = line.parse().unwrap();
-        match last {
-            None => (),
-            Some(last_num) => {
-                if num > last_num {
-                    result += 1;
-                }
-            }
-        }
-        last = Some(num);
-    }
-    Box::new(result)
+    Box::new(solve(input, 2))
 }
 
 #[aoc(year = 2021, day = 1, part = "two")]
 fn solve_2021_01_02(input: &str) -> Box<i32> {
-    let mut result = 0;
-
-    for [[a1, a2, a3], [b1, b2, b3]] in input
-        .lines()
-        .map(|line| line.parse::<i32>().unwrap())
-        .windows()
-        .windows()
-    {
-        if b1 + b2 + b3 > a1 + a2 + a3 {
-            result += 1
-        }
-    }
-
-    Box::new(result)
+    Box::new(solve(input, 3))
 }
 
 #[test]
