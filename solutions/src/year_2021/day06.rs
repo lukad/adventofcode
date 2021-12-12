@@ -1,32 +1,59 @@
+use std::collections::HashMap;
+
 use aoc::aoc;
 
-fn step(fish: &mut Vec<i32>) {
-    let mut new_fish = vec![];
-    for n in fish.iter_mut() {
-        match *n {
+fn count_fish(fish: u8, days: usize, cache: &mut HashMap<(u8, usize), usize>) -> usize {
+    let key = (fish, days);
+    if let Some(count) = cache.get(&key) {
+        return *count;
+    }
+
+    let mut count = 1;
+    let mut fish = fish;
+
+    for day in 0..days {
+        match fish {
             0 => {
-                *n = 6;
-                new_fish.push(8);
+                fish = 6;
+                count += count_fish(9, days - day, cache);
             }
-            _ => *n -= 1,
+            _ => fish -= 1,
         }
     }
-    fish.append(&mut new_fish);
+
+    cache.insert(key, count);
+    count
+}
+
+fn parse(input: &str) -> Vec<u8> {
+    input
+        .trim()
+        .split(",")
+        .map(|n| n.parse::<_>().unwrap())
+        .collect()
+}
+
+fn solve(fish: Vec<u8>, days: usize) -> usize {
+    let mut count = 0;
+    let mut cache = HashMap::new();
+
+    for n in fish.into_iter() {
+        count += count_fish(n, days, &mut cache);
+    }
+
+    count
 }
 
 #[aoc(year = 2021, day = 6, part = "one")]
-fn solve_2021_06_01(input: &str) -> Box<i32> {
-    let mut fish = input
-        .trim()
-        .split(",")
-        .map(|n| n.parse::<i32>().unwrap())
-        .collect();
+fn solve_2021_06_01(input: &str) -> Box<usize> {
+    let fish = parse(input);
+    Box::new(solve(fish, 80))
+}
 
-    for _ in 0..80 {
-        step(&mut fish);
-    }
-
-    Box::new(fish.len() as i32)
+#[aoc(year = 2021, day = 6, part = "two")]
+fn solve_2021_06_02(input: &str) -> Box<usize> {
+    let fish = parse(input);
+    Box::new(solve(fish, 256))
 }
 
 #[test]
@@ -36,5 +63,10 @@ fn test() {
     assert_eq!(
         solve_2021_06_01.solve(input).to_string(),
         "5934".to_string()
+    );
+
+    assert_eq!(
+        solve_2021_06_02.solve(input).to_string(),
+        "26984457539".to_string()
     );
 }
