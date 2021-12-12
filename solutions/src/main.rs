@@ -2,7 +2,7 @@ mod year_2021;
 
 use aoc::Solution;
 use clap::Parser;
-use std::{io::Read, str::FromStr};
+use std::{io::Read, str::FromStr, time::Instant};
 
 #[derive(Debug)]
 enum Part {
@@ -31,6 +31,8 @@ struct Opts {
     day: i32,
     #[clap(short, long)]
     part: Part,
+    #[clap(short, long)]
+    bench: bool,
 }
 
 fn main() {
@@ -62,7 +64,14 @@ fn main() {
     if let Some(solution) = solution {
         let mut input = String::new();
         std::io::stdin().read_to_string(&mut input).unwrap();
-        println!("{}", solution.solve(&input));
+        let start = Instant::now();
+        let output = solution.solve(&input);
+        let took = Instant::now().duration_since(start);
+
+        println!("{}", output);
+        if opts.bench {
+            eprintln!("Took {:?}", took);
+        }
     } else {
         println!("No solution found");
     }
