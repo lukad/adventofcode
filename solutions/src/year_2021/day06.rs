@@ -28,7 +28,7 @@ fn count_fish(fish: u8, days: usize, cache: &mut HashMap<(u8, usize), usize>) ->
 fn parse(input: &str) -> Vec<u8> {
     input
         .trim()
-        .split(",")
+        .split(',')
         .map(|n| n.parse::<_>().unwrap())
         .collect()
 }

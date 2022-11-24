@@ -47,10 +47,10 @@ impl HeightMap {
         let mut low_points = vec![];
         for y in 0..=self.max_y {
             for x in 0..=self.max_x {
-                let value = &self.map[&(x, y.clone())];
+                let value = &self.map[&(x, y)];
                 if [(-1, 0), (1, 0), (0, -1), (0, 1)]
                     .into_iter()
-                    .all(|(dx, dy)| match self.map.get(&(x + dx, y.clone() + dy)) {
+                    .all(|(dx, dy)| match self.map.get(&(x + dx, y + dy)) {
                         Some(other) => other > value,
                         None => true,
                     })

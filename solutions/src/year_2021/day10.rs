@@ -3,16 +3,16 @@ use aoc::aoc;
 fn check_parens(input: &str) -> (Vec<u64>, i32) {
     let mut stack = vec![];
 
-    for c in input.chars().into_iter() {
+    for c in input.chars() {
         match (c, stack.last()) {
             ('(', _) => stack.push(1),
             ('[', _) => stack.push(2),
             ('{', _) => stack.push(3),
             ('<', _) => stack.push(4),
-            (')', Some(1)) => drop(stack.pop()),
-            (']', Some(2)) => drop(stack.pop()),
-            ('}', Some(3)) => drop(stack.pop()),
-            ('>', Some(4)) => drop(stack.pop()),
+            (')', Some(1)) => _ = stack.pop(),
+            (']', Some(2)) => _ = stack.pop(),
+            ('}', Some(3)) => _ = stack.pop(),
+            ('>', Some(4)) => _ = stack.pop(),
             (')', _) => return (stack, 3),
             (']', _) => return (stack, 57),
             ('}', _) => return (stack, 1197),
@@ -22,7 +22,7 @@ fn check_parens(input: &str) -> (Vec<u64>, i32) {
     }
 
     stack.reverse();
-    return (stack, 0);
+    (stack, 0)
 }
 
 #[aoc(year = 2021, day = 10, part = "one")]
