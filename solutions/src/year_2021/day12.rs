@@ -15,7 +15,7 @@ impl<'a> From<&'a str> for System<'a> {
         let mut caves: HashMap<&str, Vec<&str>> = HashMap::new();
 
         for line in s.trim().lines() {
-            let (from, to) = line.split_once("-").unwrap();
+            let (from, to) = line.split_once('-').unwrap();
             caves.entry(from).or_default().push(to);
             caves.entry(to).or_default().push(from);
         }

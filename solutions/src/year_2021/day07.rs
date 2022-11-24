@@ -3,14 +3,14 @@ use aoc::aoc;
 fn solve(input: &str, part_two: bool) -> isize {
     let crabs: Vec<isize> = input
         .trim()
-        .split(",")
+        .split(',')
         .map(|n| n.parse::<isize>().unwrap())
         .collect();
 
     let min = crabs.iter().min().unwrap();
     let max = crabs.iter().max().unwrap();
 
-    let score = (*min..*max)
+    (*min..*max)
         .map(|point| {
             crabs.iter().fold(0, |acc, crab| {
                 let d = (*crab - point).abs();
@@ -18,9 +18,7 @@ fn solve(input: &str, part_two: bool) -> isize {
             })
         })
         .min()
-        .unwrap();
-
-    score
+        .unwrap()
 }
 
 #[aoc(year = 2021, day = 7, part = "one")]

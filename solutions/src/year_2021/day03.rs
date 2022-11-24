@@ -24,7 +24,7 @@ pub fn solve_2021_03_01(input: &str) -> String {
     let nums: Vec<usize> = nums
         .into_iter()
         .map(|col| col.into_iter().reduce(|acc, x| acc + x).unwrap())
-        .map(|x| if x > row_count / 2 { 1 } else { 0 })
+        .map(|x| usize::from(x > row_count / 2))
         .collect();
 
     let gamma = nums

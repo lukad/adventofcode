@@ -97,7 +97,7 @@ impl Board {
 fn parse_game(input: &str) -> (Vec<i32>, Vec<Board>) {
     let (nums, boards) = input.split_once("\n\n").unwrap();
 
-    let nums: Vec<i32> = nums.split(",").map(|s| s.parse().unwrap()).collect();
+    let nums: Vec<i32> = nums.split(',').map(|s| s.parse().unwrap()).collect();
     let boards: Vec<Board> = boards
         .split("\n\n")
         .map(|board_str| board_str.into())
