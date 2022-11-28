@@ -1,4 +1,4 @@
-use aoc::aoc;
+use aoc::*;
 
 #[derive(Debug, Clone, Copy)]
 enum Cell {
@@ -106,41 +106,44 @@ fn parse_game(input: &str) -> (Vec<i32>, Vec<Board>) {
     (nums, boards)
 }
 
-#[aoc(year = 2021, day = 4, part = "one")]
-pub fn solve_2021_04_01(input: &str) -> Box<i32> {
-    let (nums, mut boards) = parse_game(input);
+#[derive(Debug, Date)]
+#[date(year = 2021, day = 4)]
+pub struct Day04;
 
-    for num in nums.iter() {
-        for board in boards.iter_mut() {
-            if board.mark(*num) {
-                return Box::new(board.unmarked_sum() * num);
+impl Solution for Day04 {
+    fn part_one(&self, input: &str) -> aoc::AocResult {
+        let (nums, mut boards) = parse_game(input);
+
+        for num in nums.iter() {
+            for board in boards.iter_mut() {
+                if board.mark(*num) {
+                    return Ok(Box::new(board.unmarked_sum() * num));
+                }
             }
         }
+
+        Ok(Box::new(0))
     }
 
-    Box::new(0)
-}
+    fn part_two(&self, input: &str) -> aoc::AocResult {
+        let (nums, mut boards) = parse_game(input);
 
-#[aoc(year = 2021, day = 4, part = "two")]
-pub fn solve_2021_04_02(input: &str) -> Box<i32> {
-    let (nums, mut boards) = parse_game(input);
+        let mut last_winner_score = 0;
 
-    let mut last_winner_score = 0;
-
-    for num in nums.iter() {
-        for board in boards.iter_mut() {
-            if board.mark(*num) {
-                last_winner_score = board.unmarked_sum() * num;
+        for num in nums.iter() {
+            for board in boards.iter_mut() {
+                if board.mark(*num) {
+                    last_winner_score = board.unmarked_sum() * num;
+                }
             }
         }
-    }
 
-    Box::new(last_winner_score)
+        Ok(Box::new(last_winner_score))
+    }
 }
 
 #[test]
 fn test() {
-    use aoc::Solution;
     let input = "7,4,9,5,11,17,23,2,0,14,21,24,10,16,13,6,15,25,12,22,18,20,8,19,3,26,1
 
 22 13 17 11  0
@@ -160,12 +163,6 @@ fn test() {
 18  8 23 26 20
 22 11 13  6  5
  2  0 12  3  7";
-    assert_eq!(
-        solve_2021_04_01.solve(input).to_string(),
-        "4512".to_string()
-    );
-    assert_eq!(
-        solve_2021_04_02.solve(input).to_string(),
-        "1924".to_string()
-    );
+    assert_solution!(Day04.part_one, input, "4512");
+    assert_solution!(Day04.part_two, input, "1924");
 }

@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use aoc::aoc;
+use aoc::*;
 
 fn count_fish(fish: u8, days: usize, cache: &mut HashMap<(u8, usize), usize>) -> usize {
     let key = (fish, days);
@@ -34,39 +34,30 @@ fn parse(input: &str) -> Vec<u8> {
 }
 
 fn solve(fish: Vec<u8>, days: usize) -> usize {
-    let mut count = 0;
     let mut cache = HashMap::new();
 
-    for n in fish.into_iter() {
-        count += count_fish(n, days, &mut cache);
+    fish.into_iter()
+        .map(|fish| count_fish(fish, days, &mut cache))
+        .sum()
+}
+
+#[derive(Debug, Date)]
+#[date(year = 2021, day = 6)]
+pub struct Day06;
+
+impl Solution for Day06 {
+    fn part_one(&self, input: &str) -> AocResult {
+        Ok(Box::new(solve(parse(input), 80)))
     }
 
-    count
-}
-
-#[aoc(year = 2021, day = 6, part = "one")]
-fn solve_2021_06_01(input: &str) -> Box<usize> {
-    let fish = parse(input);
-    Box::new(solve(fish, 80))
-}
-
-#[aoc(year = 2021, day = 6, part = "two")]
-fn solve_2021_06_02(input: &str) -> Box<usize> {
-    let fish = parse(input);
-    Box::new(solve(fish, 256))
+    fn part_two(&self, input: &str) -> AocResult {
+        Ok(Box::new(solve(parse(input), 256)))
+    }
 }
 
 #[test]
 fn test() {
-    use aoc::Solution;
     let input = "3,4,3,1,2";
-    assert_eq!(
-        solve_2021_06_01.solve(input).to_string(),
-        "5934".to_string()
-    );
-
-    assert_eq!(
-        solve_2021_06_02.solve(input).to_string(),
-        "26984457539".to_string()
-    );
+    assert_solution!(Day06.part_one, input, "5934");
+    assert_solution!(Day06.part_two, input, "26984457539");
 }

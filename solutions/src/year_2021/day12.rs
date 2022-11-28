@@ -1,6 +1,6 @@
 use std::collections::{HashMap, HashSet};
 
-use aoc::aoc;
+use aoc::*;
 
 fn is_small(cave: &str) -> bool {
     cave.chars().next().unwrap().is_lowercase()
@@ -65,21 +65,24 @@ impl<'a> System<'a> {
     }
 }
 
-#[aoc(year = 2021, day = 12, part = "one")]
-fn solve_2021_12_01(input: &str) -> Box<i32> {
-    let system = System::from(input);
-    Box::new(system.find_paths(false))
-}
+#[derive(Debug, Date)]
+#[date(year = 2021, day = 12)]
+pub struct Day12;
 
-#[aoc(year = 2021, day = 12, part = "two")]
-fn solve_2021_12_02(input: &str) -> Box<i32> {
-    let system = System::from(input);
-    Box::new(system.find_paths(true))
+impl Solution for Day12 {
+    fn part_one(&self, input: &str) -> AocResult {
+        let system = System::from(input);
+        Ok(Box::new(system.find_paths(false)))
+    }
+
+    fn part_two(&self, input: &str) -> AocResult {
+        let system = System::from(input);
+        Ok(Box::new(system.find_paths(true)))
+    }
 }
 
 #[test]
 fn test() {
-    use aoc::Solution;
     let input = "dc-end
 HN-start
 start-kj
@@ -90,6 +93,6 @@ HN-end
 kj-sa
 kj-HN
 kj-dc";
-    assert_eq!(solve_2021_12_01.solve(input).to_string(), "19".to_string());
-    assert_eq!(solve_2021_12_02.solve(input).to_string(), "103".to_string());
+    assert_solution!(Day12.part_one, input, "19");
+    assert_solution!(Day12.part_two, input, "103");
 }

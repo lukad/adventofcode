@@ -1,6 +1,6 @@
 use std::collections::{HashMap, HashSet};
 
-use aoc::aoc;
+use aoc::*;
 
 struct HeightMap {
     max_x: isize,
@@ -85,27 +85,27 @@ impl HeightMap {
     }
 }
 
-#[aoc(year = 2021, day = 9, part = "one")]
-pub fn solve_2021_09_01(input: &str) -> Box<usize> {
-    Box::new(HeightMap::from(input).risk())
-}
+#[derive(Debug, Date)]
+#[date(year = 2021, day = 9)]
+pub struct Day09;
 
-#[aoc(year = 2021, day = 9, part = "two")]
-fn solve_2021_09_02(input: &str) -> Box<i32> {
-    Box::new(HeightMap::from(input).basins())
+impl Solution for Day09 {
+    fn part_one(&self, input: &str) -> AocResult {
+        Ok(Box::new(HeightMap::from(input).risk()))
+    }
+
+    fn part_two(&self, input: &str) -> AocResult {
+        Ok(Box::new(HeightMap::from(input).basins()))
+    }
 }
 
 #[test]
 fn test() {
-    use aoc::Solution;
     let input = "2199943210
 3987894921
 9856789892
 8767896789
 9899965678";
-    assert_eq!(solve_2021_09_01.solve(input).to_string(), "15".to_string());
-    assert_eq!(
-        solve_2021_09_02.solve(input).to_string(),
-        "1134".to_string()
-    );
+    assert_solution!(Day09.part_one, input, "15");
+    assert_solution!(Day09.part_two, input, "1134");
 }
