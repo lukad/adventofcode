@@ -1,62 +1,37 @@
-use darling::FromMeta;
+use darling::FromDeriveInput;
+// use darling::FromMeta;
 use proc_macro::TokenStream;
 use quote::quote;
-use syn::{parse_macro_input, AttributeArgs, ItemFn};
+use syn::{parse_macro_input, DeriveInput};
 
-#[derive(Debug, PartialEq, Eq, FromMeta)]
-#[repr(u8)]
-enum Part {
-    One,
-    Two,
+#[derive(FromDeriveInput)]
+#[darling(attributes(date))]
+struct DateAttributes {
+    year: usize,
+    day: usize,
 }
 
-#[derive(Debug, PartialEq, Eq, FromMeta)]
-struct SolutionAttributes {
-    pub year: i32,
-    pub day: i32,
-    pub part: Part,
-}
+#[proc_macro_derive(Date, attributes(date))]
+pub fn derive_date_solution(input: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(input as DeriveInput);
 
-#[proc_macro_attribute]
-pub fn aoc(args: TokenStream, input: TokenStream) -> TokenStream {
-    let args = parse_macro_input!(args as AttributeArgs);
-    let fun = parse_macro_input!(input as ItemFn);
-
-    let SolutionAttributes { year, day, part } = match SolutionAttributes::from_list(&args) {
+    let DateAttributes { year, day } = match FromDeriveInput::from_derive_input(&input) {
         Ok(v) => v,
-        Err(e) => {
-            return e.write_errors().into();
-        }
+        Err(e) => return e.write_errors().into(),
     };
 
-    let part_one = (part as u8) == 0;
-    let block = fun.block;
-    let name = fun.sig.ident;
+    let ident = input.ident;
 
     let result = quote! {
+        inventory::submit!(&#ident as &dyn Solution);
 
-        #[allow(non_camel_case_types)]
-        pub struct #name;
-
-        impl aoc::Solution for #name {
-            fn year(&self) -> i32 {
+        impl Date for #ident {
+            fn year(&self) -> usize {
                 #year
             }
 
-            fn day(&self) -> i32 {
+            fn day(&self) -> usize {
                 #day
-            }
-
-            fn part(&self) -> aoc::Part {
-                if #part_one {
-                    aoc::Part::One
-                } else {
-                    aoc::Part::Two
-                }
-            }
-
-            fn solve(&self, input: &str) -> Box<dyn std::fmt::Display> {
-                #block
             }
         }
     };
