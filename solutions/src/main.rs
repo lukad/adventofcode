@@ -1,4 +1,5 @@
 mod year_2021;
+mod year_2022;
 
 use aoc::*;
 use clap::Parser;
