@@ -1,2 +1,5 @@
 [workspace]
 members = ["solutions", "aoc", "aoc_derive"]
+
+[profile.release]
+lto = "thin"

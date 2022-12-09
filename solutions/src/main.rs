@@ -3,7 +3,7 @@ mod year_2022;
 
 use aoc::*;
 use clap::Parser;
-use std::{collections::HashMap, io::Read, time::Instant};
+use std::{collections::HashMap, io::Read, path::PathBuf, str::FromStr, time::Instant};
 
 #[derive(Debug, Parser)]
 #[clap(author = "Luka Dornhecker")]
@@ -16,6 +16,7 @@ struct Opts {
     part: Part,
     #[clap(short, long)]
     bench: bool,
+    input: PathBuf,
 }
 
 type Date = (usize, usize);
@@ -32,13 +33,18 @@ fn main() {
     let solution = solutions.get(&(opts.year, opts.day)).unwrap();
 
     let mut input = String::new();
-    std::io::stdin().read_to_string(&mut input).unwrap();
+    if opts.input == PathBuf::from_str("-").unwrap() {
+        std::io::stdin().read_to_string(&mut input).unwrap();
+    } else {
+        input = std::fs::read_to_string(opts.input).unwrap();
+    }
 
     let start = Instant::now();
     let output = solution.solve(&input, opts.part).unwrap();
     let took = Instant::now().duration_since(start);
 
     println!("{}", output);
+
     if opts.bench {
         eprintln!("Took {:?}", took);
     }
