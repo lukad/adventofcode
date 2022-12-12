@@ -23,9 +23,10 @@ impl FromStr for Part {
 pub type Day = i32;
 pub type Year = i32;
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub enum Error {
     NotImplemented,
+    Other(String),
 }
 
 pub type AocResult = Result<Box<dyn std::fmt::Display>, Error>;
