@@ -41,20 +41,10 @@ impl Solution for Day13 {
     }
 }
 
-#[derive(Debug, Clone, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 enum Packet {
     Int(u8),
     List(Vec<Self>),
-}
-
-impl PartialEq for Packet {
-    fn eq(&self, other: &Self) -> bool {
-        match (self, other) {
-            (Self::Int(lhs), Self::Int(rhs)) => lhs == rhs,
-            (Self::List(lhs), Self::List(rhs)) => lhs == rhs,
-            _ => false,
-        }
-    }
 }
 
 impl PartialOrd for Packet {
@@ -75,7 +65,7 @@ impl PartialOrd for Packet {
 
 impl Ord for Packet {
     fn cmp(&self, other: &Self) -> Ordering {
-        self.partial_cmp(other).unwrap()
+        self.partial_cmp(other).unwrap_or(Ordering::Equal)
     }
 }
 
