@@ -1,7 +1,5 @@
-use std::{collections::HashMap, hash::Hash, num::NonZeroUsize};
-
 use aoc::*;
-use lru::LruCache;
+use hashbrown::HashMap;
 use nom::{
     branch::alt,
     bytes::complete::{tag, take},
@@ -30,7 +28,7 @@ fn max_flow(
     flows: &HashMap<u64, u64>,
     tunnels: &HashMap<u64, Vec<u64>>,
     mins_left: u64,
-    cache: &mut LruCache<(u64, u64, u64), u64>,
+    cache: &mut HashMap<(u64, u64, u64), u64>,
 ) -> u64 {
     if mins_left == 0 {
         return 0;
@@ -64,7 +62,7 @@ fn max_flow(
         }
     }
 
-    cache.put(key, pressure);
+    cache.insert(key, pressure);
     pressure
 }
 
@@ -93,7 +91,7 @@ impl Solution for Day16 {
             tunnels.insert(valve.id, valve.tunnels);
         }
 
-        let mut cache = LruCache::new(NonZeroUsize::new(1024 * 1024).unwrap());
+        let mut cache = HashMap::new();
 
         Ok(Box::new(max_flow(
             *ids.get(&370).unwrap(),
