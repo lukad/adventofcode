@@ -44,22 +44,25 @@ fn max_flow(
     if opened & current == 0 {
         let val = (mins_left - 1) * flows.get(&current).unwrap();
 
-        let cur_opened = opened | current;
-        for &neighbor in tunnels.get(&current).unwrap() {
-            if val != 0 {
+        if val != 0 {
+            let cur_opened = opened | current;
+            for &neighbor in tunnels.get(&current).unwrap() {
                 pressure = pressure.max(
                     val + max_flow(neighbor, cur_opened, flows, tunnels, mins_left - 2, cache),
                 );
             }
-            pressure = pressure.max(max_flow(
-                neighbor,
-                opened,
-                flows,
-                tunnels,
-                mins_left - 1,
-                cache,
-            ));
         }
+    }
+
+    for &neighbor in tunnels.get(&current).unwrap() {
+        pressure = pressure.max(max_flow(
+            neighbor,
+            opened,
+            flows,
+            tunnels,
+            mins_left - 1,
+            cache,
+        ));
     }
 
     cache.insert(key, pressure);
@@ -130,7 +133,7 @@ fn parse_line(i: &str) -> IResult<&str, Valve> {
 
 #[test]
 fn test() {
-    let _input = "Valve AA has flow rate=0; tunnels lead to valves DD, II, BB
+    let input = "Valve AA has flow rate=0; tunnels lead to valves DD, II, BB
 Valve BB has flow rate=13; tunnels lead to valves CC, AA
 Valve CC has flow rate=2; tunnels lead to valves DD, BB
 Valve DD has flow rate=20; tunnels lead to valves CC, AA, EE
@@ -141,5 +144,5 @@ Valve HH has flow rate=22; tunnel leads to valve GG
 Valve II has flow rate=0; tunnels lead to valves AA, JJ
 Valve JJ has flow rate=21; tunnel leads to valve II
 ";
-    // assert_solution!(Day16.part_one, input, "1651");
+    assert_solution!(Day16.part_one, input, "1651");
 }
