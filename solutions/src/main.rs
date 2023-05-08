@@ -1,3 +1,5 @@
+#![feature(int_roundings)]
+
 mod year_2021;
 mod year_2022;
 

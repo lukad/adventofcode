@@ -122,7 +122,7 @@ pub fn parse_monkey(i: &str) -> IResult<&str, Monkey> {
     let (i, _) = multispace1(i)?;
     let (i, operation) = operation(i)?;
     let (i, _) = multispace1(i)?;
-    let (i, test) = test(i)?;
+    let (i, test) = parse_test(i)?;
     Ok((
         i,
         Monkey {
@@ -153,7 +153,7 @@ fn operation(i: &str) -> IResult<&str, Op> {
     alt((add, mul, mul_old))(i)
 }
 
-fn test(i: &str) -> IResult<&str, Test> {
+fn parse_test(i: &str) -> IResult<&str, Test> {
     let (i, divisor) = preceded(tag("Test: divisible by "), nom::character::complete::u64)(i)?;
     let (i, _) = multispace1(i)?;
     let (i, if_true) = preceded(
@@ -175,15 +175,9 @@ fn test(i: &str) -> IResult<&str, Test> {
     ))
 }
 
-#[cfg(test)]
-mod tests {
-    use aoc::*;
-
-    use super::Day11;
-
-    #[test]
-    fn test() {
-        let input = "Monkey 0:
+#[test]
+fn test() {
+    let input = "Monkey 0:
   Starting items: 79, 98
   Operation: new = old * 19
   Test: divisible by 23
@@ -211,7 +205,6 @@ Monkey 3:
     If true: throw to monkey 0
     If false: throw to monkey 1
 ";
-        assert_solution!(Day11.part_one, input, "10605");
-        assert_solution!(Day11.part_two, input, "2713310158");
-    }
+    assert_solution!(Day11.part_one, input, "10605");
+    assert_solution!(Day11.part_two, input, "2713310158");
 }

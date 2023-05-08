@@ -8,14 +8,15 @@ edition = "2021"
 [dependencies]
 aoc = { path = "../aoc" }
 clap = { version = "3.0.0-rc.4", features = ["derive"] }
-glam = "0.22.0"
+glam = "0.23.0"
 inventory = "0.3.2"
 ndarray = "0.15.6"
 nom = "7.1.1"
-parse-display = "0.7.0"
+parse-display = "0.8.0"
 pathfinding = "4.0.0"
 itertools = "*"
 rayon = "1.6.1"
-hashbrown = "*"
 indicatif = "0.17.2"
 lazy_static = "1.4.0"
+hashbrown = "0.13.2"
+regex = "1.7.2"

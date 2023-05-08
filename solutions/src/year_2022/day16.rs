@@ -1,5 +1,6 @@
 use aoc::*;
 use hashbrown::HashMap;
+// use fnv::FnvHashMap as HashMap;
 use nom::{
     branch::alt,
     bytes::complete::{tag, take},
@@ -9,6 +10,7 @@ use nom::{
     sequence::preceded,
     IResult,
 };
+use pathfinding::prelude::dijkstra;
 
 #[derive(Debug, PartialEq, Eq, Hash, Clone)]
 struct Valve<'a> {
@@ -22,159 +24,145 @@ struct Valve<'a> {
 #[date(year = 2022, day = 16)]
 pub struct Day16;
 
-#[allow(clippy::too_many_arguments)]
-fn max_flow(
+struct State {
     start: u64,
-    current: u64,
-    opened: u64,
-    flows: &HashMap<u64, u64>,
-    tunnels: &HashMap<u64, Vec<u64>>,
-    mins_left: u8,
-    elephants: u8,
-    cache: &mut HashMap<(u64, u64, u8, u8), u64>,
-) -> u64 {
-    if mins_left == 0 {
-        return if elephants > 0 {
-            max_flow(
-                start,
-                start,
-                opened,
-                flows,
-                tunnels,
-                26,
-                elephants - 1,
-                cache,
-            )
-        } else {
-            0
-        };
-    }
+    flows: HashMap<u64, u64>,
+    valves: Vec<u64>,
+    distances: HashMap<(u64, u64), u8>,
+    // initial_mins_left: u8,
+}
 
-    let key = (current, opened, mins_left, elephants);
-    if let Some(value) = cache.get(&key) {
-        return *value;
-    }
+impl State {
+    fn solve(
+        &self,
+        current: u64,
+        opened: u64,
+        mins_left: u8,
+        elephants: u8,
+        cache: &mut HashMap<(u64, u64, u8, u8), u64>,
+    ) -> u64 {
+        if mins_left == 0 {
+            return if elephants > 0 {
+                self.solve(self.start, opened, 26, elephants - 1, cache)
+            } else {
+                0
+            };
+        }
 
-    let mut pressure = 0;
+        let key = (current, opened, mins_left, elephants);
+        if let Some(value) = cache.get(&key) {
+            return *value;
+        }
 
-    if opened & current == 0 {
-        let val = (mins_left as u64 - 1) * flows.get(&current).unwrap();
+        let mut pressure = 0;
+        let mut max_pressure = 0;
+        let mut opened = opened;
+        let mut mins_left = mins_left;
 
-        if val != 0 {
-            let cur_opened = opened | current;
-            for &neighbor in tunnels.get(&current).unwrap() {
-                pressure = pressure.max(
-                    val + max_flow(
-                        start,
-                        neighbor,
-                        cur_opened,
-                        flows,
-                        tunnels,
-                        mins_left - 2,
-                        elephants,
-                        cache,
-                    ),
-                );
+        if current != self.start && opened & current == 0 {
+            let &flow = self.flows.get(&current).unwrap();
+            mins_left -= 1;
+            pressure += (mins_left as u64) * flow;
+            opened |= current;
+        }
+
+        for &neighbor in self.valves.iter() {
+            if neighbor == current {
+                continue;
             }
+            let distance = *self.distances.get(&(current, neighbor)).unwrap();
+            if distance > (mins_left) {
+                continue;
+            }
+            let p =
+                pressure + self.solve(neighbor, opened, mins_left - (distance), elephants, cache);
+            max_pressure = max_pressure.max(p);
+        }
+
+        cache.insert(key, max_pressure);
+        max_pressure
+    }
+}
+
+fn solve(input: &str, initial_mins_left: u8, elephants: u8) -> u64 {
+    let mut tunnels = HashMap::default();
+    let mut flows = HashMap::default();
+    let mut ids = HashMap::new();
+
+    let mut valves: Vec<_> = iterator(input, parse_line).into_iter().collect();
+    valves.sort_by_key(|v| v.name);
+
+    for (i, valve) in valves.iter_mut().enumerate() {
+        let new_id = 1 << i;
+        ids.insert(valve.id, new_id);
+        valve.id = new_id;
+    }
+
+    for valve in valves.iter_mut() {
+        for tunnel in valve.tunnels.iter_mut() {
+            *tunnel = *ids.get(tunnel).unwrap();
         }
     }
 
-    for &neighbor in tunnels.get(&current).unwrap() {
-        pressure = pressure.max(max_flow(
-            start,
-            neighbor,
-            opened,
-            flows,
-            tunnels,
-            mins_left - 1,
-            elephants,
-            cache,
-        ));
+    for valve in valves.iter() {
+        flows.insert(valve.id, valve.rate);
+        tunnels.insert(valve.id, valve.tunnels.clone());
     }
 
-    cache.insert(key, pressure);
-    pressure
+    let mut flow_valves = valves
+        .into_iter()
+        .filter(|v| v.rate > 0 || v.id == 1)
+        .map(|v| v.id)
+        .collect::<Vec<_>>();
+
+    let mut distances = HashMap::default();
+    for i in 0..flow_valves.len() {
+        for j in 0..flow_valves.len() {
+            if i == j {
+                continue;
+            }
+            let src = flow_valves[i];
+            let dst = flow_valves[j];
+            if distances.contains_key(&(src, dst)) || distances.contains_key(&(dst, src)) {
+                continue;
+            }
+            let distance = path_length(src, dst, &tunnels);
+            distances.insert((src, dst), distance);
+            distances.insert((dst, src), distance);
+        }
+    }
+
+    flow_valves.remove(0);
+
+    let mut cache = HashMap::default();
+
+    let state = State {
+        start: *ids.get(&370).unwrap(),
+        flows,
+        valves: flow_valves,
+        distances,
+    };
+
+    state.solve(state.start, 1, initial_mins_left, elephants, &mut cache)
 }
 
-// fn solve(input: &str, mins_left: u64);
+fn path_length(src: u64, dst: u64, tunnels: &HashMap<u64, Vec<u64>>) -> u8 {
+    let (_path, length) = dijkstra(
+        &src,
+        |cur| tunnels.get(cur).unwrap().iter().map(|&valve| (valve, 1)),
+        |&cur| cur == dst,
+    )
+    .unwrap();
+    length
+}
 
 impl Solution for Day16 {
     fn part_one(&self, input: &str) -> AocResult {
-        let mut tunnels = HashMap::new();
-        let mut flows = HashMap::new();
-        let mut ids = HashMap::new();
-
-        let mut valves: Vec<_> = iterator(input, parse_line).into_iter().collect();
-
-        for (i, valve) in valves.iter_mut().enumerate() {
-            let new_id = 1 << i;
-            ids.insert(valve.id, new_id);
-            valve.id = new_id;
-        }
-
-        for valve in valves.iter_mut() {
-            for tunnel in valve.tunnels.iter_mut() {
-                *tunnel = *ids.get(tunnel).unwrap();
-            }
-        }
-
-        for valve in valves.into_iter() {
-            flows.insert(valve.id, valve.rate);
-            tunnels.insert(valve.id, valve.tunnels);
-        }
-
-        let mut cache = HashMap::new();
-
-        Ok(Box::new(max_flow(
-            *ids.get(&370).unwrap(),
-            *ids.get(&370).unwrap(),
-            0,
-            &flows,
-            &tunnels,
-            30,
-            0,
-            &mut cache,
-        )))
+        Ok(Box::new(solve(input, 30, 0)))
     }
 
     fn part_two(&self, input: &str) -> AocResult {
-        let mut tunnels = HashMap::new();
-        let mut flows = HashMap::new();
-        let mut ids = HashMap::new();
-
-        let mut valves: Vec<_> = iterator(input, parse_line).into_iter().collect();
-
-        for (i, valve) in valves.iter_mut().enumerate() {
-            let new_id = 1 << i;
-            ids.insert(valve.id, new_id);
-            valve.id = new_id;
-        }
-
-        dbg!(&ids);
-
-        for valve in valves.iter_mut() {
-            for tunnel in valve.tunnels.iter_mut() {
-                *tunnel = *ids.get(tunnel).unwrap();
-            }
-        }
-
-        for valve in valves.into_iter() {
-            flows.insert(valve.id, valve.rate);
-            tunnels.insert(valve.id, valve.tunnels);
-        }
-
-        let mut cache = HashMap::new();
-
-        Ok(Box::new(max_flow(
-            *ids.get(&370).unwrap(),
-            *ids.get(&370).unwrap(),
-            0,
-            &flows,
-            &tunnels,
-            26,
-            1,
-            &mut cache,
-        )))
+        Ok(Box::new(solve(input, 26, 1)))
     }
 }
 

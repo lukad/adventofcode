@@ -10,11 +10,7 @@ impl Solution for Day07 {
     fn part_one(&self, input: &str) -> AocResult {
         let sizes = dir_sizes(input);
 
-        let sum: usize = sizes
-            .into_iter()
-            .map(|(_, size)| size)
-            .filter(|size| *size < 10_0000)
-            .sum();
+        let sum: usize = sizes.into_values().filter(|size| *size < 10_0000).sum();
 
         Ok(Box::new(sum))
     }
@@ -24,8 +20,7 @@ impl Solution for Day07 {
         let free = 70_000_000 - sizes.get(&vec!["/"]).unwrap_or(&0);
 
         let smallest_dir_to_delete = dir_sizes(input)
-            .into_iter()
-            .map(|(_, size)| size)
+            .into_values()
             .filter(|size| free + size >= 30_000_000)
             .min()
             .unwrap_or_default();

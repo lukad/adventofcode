@@ -1,47 +1,19 @@
-use std::time::Duration;
-
 use aoc::*;
-use hashbrown::HashSet;
-use indicatif::{ProgressBar, ProgressIterator, ProgressStyle};
+use hashbrown::{HashMap, HashSet};
 use lazy_static::lazy_static;
+
+type Pos = (i64, i64);
+type Piece = HashSet<Pos>;
 
 lazy_static! {
     static ref PIECES: [Piece; 5] = [
-        Piece([
-            [false, false, false, false],
-            [false, false, false, false],
-            [false, false, false, false],
-            [true, true, true, true],
-        ]),
-        Piece([
-            [false, false, false, false],
-            [false, true, false, false],
-            [true, true, true, false],
-            [false, true, false, false],
-        ]),
-        Piece([
-            [false, false, false, false],
-            [false, false, true, false],
-            [false, false, true, false],
-            [true, true, true, false],
-        ]),
-        Piece([
-            [true, false, false, false],
-            [true, false, false, false],
-            [true, false, false, false],
-            [true, false, false, false],
-        ]),
-        Piece([
-            [false, false, false, false],
-            [false, false, false, false],
-            [true, true, false, false],
-            [true, true, false, false],
-        ]),
+        HashSet::from([(0, 0), (1, 0), (2, 0), (3, 0)]),
+        HashSet::from([(1, 0), (0, 1), (1, 1), (2, 1), (1, 2)]),
+        HashSet::from([(0, 0), (1, 0), (2, 0), (2, 1), (2, 2)]),
+        HashSet::from([(0, 0), (0, 1), (0, 2), (0, 3)]),
+        HashSet::from([(0, 0), (1, 0), (0, 1), (1, 1)]),
     ];
 }
-
-#[derive(Debug)]
-struct Piece([[bool; 4]; 4]);
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 enum Move {
@@ -51,86 +23,68 @@ enum Move {
 
 struct Chamber {
     rocks: HashSet<(i64, i64)>,
-    top: i64,
-    bottom: i64,
+    height: i64,
+    piece_id: usize,
+    mov_id: usize,
 }
 
 impl Chamber {
     fn new() -> Self {
+        let mut rocks = HashSet::new();
+        rocks.extend((0..7).map(|x| (x, 0)));
         Self {
-            rocks: HashSet::new(),
-            top: 0,
-            bottom: 0,
+            rocks,
+            height: 0,
+            piece_id: 0,
+            mov_id: 0,
         }
     }
 
-    fn simulate(&mut self, rocks: usize, moves: impl Iterator<Item = Move> + Clone) {
-        let mut pieces = PIECES.iter().cycle();
-        let mut moves = moves.cycle();
+    fn simulate<F>(mut self, moves: impl Iterator<Item = Move> + Clone, mut callback: F) -> i64
+    where
+        F: FnMut(&mut Self, usize) -> bool,
+    {
+        let mut pieces = PIECES.iter().enumerate().cycle();
+        let mut moves = moves.enumerate().cycle();
+        let mut rocks = 0;
 
-        let style = ProgressStyle::with_template("{wide_bar} {eta} {pos}/{len}").unwrap();
-        for _ in (0..rocks).progress_with_style(style) {
-            let piece = pieces.next().unwrap();
+        loop {
+            let (piece_id, piece) = pieces.next().unwrap();
+            self.piece_id = piece_id;
+
             let mut x = 2;
-            let mut y = self.top + 3;
+            let mut y = self.height + 4;
 
             loop {
-                let mov = moves.next().unwrap() as i64;
+                let (mov_id, mov) = moves.next().unwrap();
+                self.mov_id = mov_id;
 
-                if !self.piece_collides(piece, x + mov, y, -10) {
+                let mov = mov as i64;
+
+                if !self.overlap(piece, x + mov, y) {
                     x += mov;
                 }
 
-                if self.piece_collides(piece, x, y - 1, -1) {
-                    self.lock_piece(piece, x, y);
+                if self.overlap(piece, x, y - 1) {
                     break;
                 }
-
-                y -= 1;
+                y -= 1
             }
 
-            for y in (self.bottom..=self.top).rev() {
-                if (0..7).all(|x| self.rocks.contains(&(x, y))) {
-                    for y in self.bottom..=y {
-                        for x in 0..7 {
-                            self.rocks.remove(&(x, y));
-                        }
-                    }
-                    self.bottom = y;
-                    break;
-                }
+            self.rocks.extend(piece.iter().map(|&p| (p.0 + x, p.1 + y)));
+            rocks += 1;
+            self.height = self.rocks.iter().map(|p| p.1).max().unwrap();
+
+            if callback(&mut self, rocks) {
+                return self.height;
             }
         }
     }
 
-    #[inline(always)]
-    fn piece_collides(&self, piece: &Piece, x: i64, y: i64, floor: i64) -> bool {
-        for (py, row) in piece.0.iter().rev().enumerate() {
-            for (px, cell) in row.iter().enumerate() {
-                let world_x = x + px as i64;
-                let world_y = y + py as i64;
-                if *cell
-                    && (world_y == self.bottom + floor
-                        || !(0..7).contains(&world_x)
-                        || self.rocks.contains(&(world_x, world_y)))
-                {
-                    return true;
-                }
-            }
-        }
-        false
-    }
-
-    #[inline(always)]
-    fn lock_piece(&mut self, piece: &Piece, x: i64, y: i64) {
-        for (py, row) in piece.0.iter().rev().enumerate() {
-            for (px, cell) in row.iter().enumerate() {
-                if *cell {
-                    self.rocks.insert((x + px as i64, y + py as i64));
-                    self.top = self.top.max(y + py as i64 + 1);
-                }
-            }
-        }
+    pub(crate) fn overlap(&self, piece: &Piece, x: i64, y: i64) -> bool {
+        piece
+            .iter()
+            .any(|p| !(0..7).contains(&(x + p.0)) || self.rocks.contains(&(x + p.0, y + p.1)))
     }
 }
 
@@ -146,10 +100,10 @@ impl Solution for Day17 {
             _ => None,
         });
 
-        let mut chamber = Chamber::new();
-        chamber.simulate(2022, moves);
+        let chamber = Chamber::new();
+        let x = chamber.simulate(moves, |_, rocks| rocks == 2022);
 
-        Ok(Box::new(chamber.top))
+        Ok(Box::new(x))
     }
 
     fn part_two(&self, input: &str) -> AocResult {
@@ -159,10 +113,30 @@ impl Solution for Day17 {
             _ => None,
         });
 
-        let mut chamber = Chamber::new();
-        chamber.simulate(1000000000000, moves);
+        let mut cache: HashMap<(usize, usize), (usize, i64)> = HashMap::new();
 
-        Ok(Box::new(chamber.top))
+        let x = Chamber::new().simulate(moves, |chamber, rocks| {
+            println!("{rocks}");
+            let state = (chamber.piece_id, chamber.mov_id);
+            let x = match cache.get(&state) {
+                None => false,
+                Some(&(last_rock_count, last_height)) => {
+                    let add_rocks = rocks - last_rock_count;
+                    let add_height = chamber.height - last_height;
+                    if (1000000000000 - rocks) % add_rocks == 0 {
+                        chamber.height +=
+                            (1000000000000 - rocks as i64) / add_rocks as i64 * add_height;
+                        true
+                    } else {
+                        false
+                    }
+                }
+            };
+            cache.insert(state, (rocks, chamber.height));
+            x
+        });
+
+        Ok(Box::new(x))
     }
 }
 
@@ -170,5 +144,5 @@ impl Solution for Day17 {
 fn test() {
     let input = ">>><<><>><<<>><>>><<<>>><<<><<<>><>><<>>";
     assert_solution!(Day17.part_one, input, "3068");
-    // assert_solution!(Day17.part_two, input, "1514285714288");
+    assert_solution!(Day17.part_two, input, "1514285714288");
 }
