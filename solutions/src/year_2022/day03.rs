@@ -17,11 +17,7 @@ impl Solution for Day03 {
     fn part_one(&self, input: &str) -> AocResult {
         let mut sum = 0;
         for line in input.lines() {
-            let line = line
-                .chars()
-                .into_iter()
-                .map(to_priority)
-                .collect::<Vec<_>>();
+            let line = line.chars().map(to_priority).collect::<Vec<_>>();
             let (l, r) = line.split_at(line.len() / 2);
             let mut hr: HashSet<u64> = HashSet::new();
             let mut hl: HashSet<u64> = HashSet::new();

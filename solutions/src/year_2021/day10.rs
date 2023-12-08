@@ -31,7 +31,7 @@ pub struct Day10;
 
 impl Solution for Day10 {
     fn part_one(&self, input: &str) -> AocResult {
-        let result = input.trim().lines().into_iter().fold(0, |acc, line| {
+        let result = input.trim().lines().fold(0, |acc, line| {
             let (_incomplete, error_score) = check_parens(line);
             acc + error_score
         });
@@ -42,7 +42,6 @@ impl Solution for Day10 {
         let mut scores = input
             .trim()
             .lines()
-            .into_iter()
             .filter_map(|line| {
                 let (missing, error_score) = check_parens(line);
                 if error_score == 0 {

@@ -47,25 +47,25 @@ enum Packet {
     List(Vec<Self>),
 }
 
-impl PartialOrd for Packet {
-    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+impl Ord for Packet {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
         match (self, other) {
-            (Self::Int(lhs), Self::Int(rhs)) => lhs.partial_cmp(rhs),
-            (Self::Int(_), Self::List(_)) => Self::List(vec![self.clone()]).partial_cmp(other),
-            (Self::List(_), Self::Int(_)) => self.partial_cmp(&Self::List(vec![other.clone()])),
+            (Self::Int(lhs), Self::Int(rhs)) => lhs.cmp(rhs),
+            (Self::Int(_), Self::List(_)) => Self::List(vec![self.clone()]).cmp(other),
+            (Self::List(_), Self::Int(_)) => self.cmp(&Self::List(vec![other.clone()])),
             (Self::List(lhs), Self::List(rhs)) => lhs
                 .iter()
                 .zip(rhs)
-                .map(|(l, r)| l.partial_cmp(r))
-                .find(|o| o != &Some(Ordering::Equal))
-                .unwrap_or_else(|| lhs.len().partial_cmp(&rhs.len())),
+                .map(|(l, r)| l.cmp(r))
+                .find(|o| o != &Ordering::Equal)
+                .unwrap_or_else(|| lhs.len().cmp(&rhs.len())),
         }
     }
 }
 
-impl Ord for Packet {
-    fn cmp(&self, other: &Self) -> Ordering {
-        self.partial_cmp(other).unwrap_or(Ordering::Equal)
+impl PartialOrd for Packet {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
     }
 }
 

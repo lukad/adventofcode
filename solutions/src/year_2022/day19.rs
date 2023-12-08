@@ -128,7 +128,7 @@ impl State {
 
 type Cache = HashMap<State, u8>;
 
-fn dfs(state: &mut State, bp: &Blueprint, current: u8, max: &mut u8, cache: &mut Cache) -> u8 {
+fn dfs(state: &State, bp: &Blueprint, current: u8, max: &mut u8, cache: &mut Cache) -> u8 {
     if state.time_left == 0 {
         return current;
     }
