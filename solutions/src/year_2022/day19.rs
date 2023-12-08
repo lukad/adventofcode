@@ -157,7 +157,7 @@ fn dfs(state: &State, bp: &Blueprint, current: u8, max: &mut u8, cache: &mut Cac
             next_state.simulate(minutes);
             next_state.build_geode_bot(bp);
             let new_score = next_state.time_left;
-            best = dfs(&mut next_state, bp, current + new_score, &mut best, cache) + new_score;
+            best = dfs(&next_state, bp, current + new_score, &mut best, cache) + new_score;
         }
     }
 
@@ -167,7 +167,7 @@ fn dfs(state: &State, bp: &Blueprint, current: u8, max: &mut u8, cache: &mut Cac
                 let mut next_state = state.clone();
                 next_state.simulate(minutes);
                 next_state.build_obsidian_bot(bp);
-                best = best.max(dfs(&mut next_state, bp, current, &mut best, cache));
+                best = best.max(dfs(&next_state, bp, current, &mut best, cache));
             }
         }
     }
@@ -178,7 +178,7 @@ fn dfs(state: &State, bp: &Blueprint, current: u8, max: &mut u8, cache: &mut Cac
             let mut next_state = state.clone();
             next_state.simulate(minutes);
             next_state.build_clay_bot(bp);
-            best = best.max(dfs(&mut next_state, bp, current, &mut best, cache));
+            best = best.max(dfs(&next_state, bp, current, &mut best, cache));
         }
     }
 
@@ -188,7 +188,7 @@ fn dfs(state: &State, bp: &Blueprint, current: u8, max: &mut u8, cache: &mut Cac
             let mut next_state = state.clone();
             next_state.simulate(minutes);
             next_state.build_ore_bot(bp);
-            best = best.max(dfs(&mut next_state, bp, current, &mut best, cache));
+            best = best.max(dfs(&next_state, bp, current, &mut best, cache));
         }
     }
 
@@ -211,9 +211,9 @@ impl Solution for Day19 {
             .enumerate()
             .map(|(i, line)| {
                 let bp = Blueprint::parse(line);
-                let mut state = State::new(24);
+                let state = State::new(24);
                 let mut max = 0;
-                let score = dfs(&mut state, &bp, 0, &mut max, &mut HashMap::new()) as u64;
+                let score = dfs(&state, &bp, 0, &mut max, &mut HashMap::new()) as u64;
                 score * (i + 1) as u64
             })
             .sum();
@@ -227,9 +227,9 @@ impl Solution for Day19 {
             .take(3)
             .map(|line| {
                 let bp = Blueprint::parse(line);
-                let mut state = State::new(32);
+                let state = State::new(32);
                 let mut max = 0;
-                dfs(&mut state, &bp, 0, &mut max, &mut HashMap::new()) as u64
+                dfs(&state, &bp, 0, &mut max, &mut HashMap::new()) as u64
             })
             .product();
         Ok(Box::new(result))
