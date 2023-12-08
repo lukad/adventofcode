@@ -1,13 +1,14 @@
-use aoc::*;
 use hashbrown::HashMap;
 use nom::{
     branch::alt,
     bytes::complete::tag,
     character::complete::{alpha1, multispace0},
     combinator::{iterator, map},
-    sequence::{preceded, tuple},
     IResult,
+    sequence::{preceded, tuple},
 };
+
+use aoc::*;
 
 #[derive(Debug, Date)]
 #[date(year = 2022, day = 21)]
@@ -39,7 +40,7 @@ impl Solution for Day21 {
             monkeys.insert("humn", Job::Num(human));
             let root = eval("root", &monkeys);
 
-            dbg!((upper, lower, human, root));
+            // dbg!((upper, lower, human, root));
             if root == 0 {
                 return Ok(Box::new(human - 1));
             }

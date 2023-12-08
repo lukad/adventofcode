@@ -1,5 +1,6 @@
 [workspace]
 members = ["solutions", "aoc", "aoc_derive"]
+resolver = "2"
 
 [profile.release]
 lto = "thin"

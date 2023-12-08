@@ -8,7 +8,7 @@ edition = "2021"
 [dependencies]
 aoc = { path = "../aoc" }
 clap = { version = "3.0.0-rc.4", features = ["derive"] }
-glam = "0.23.0"
+glam = "0.24.0"
 inventory = "0.3.2"
 ndarray = "0.15.6"
 nom = "7.1.1"
@@ -18,5 +18,7 @@ itertools = "*"
 rayon = "1.6.1"
 indicatif = "0.17.2"
 lazy_static = "1.4.0"
-hashbrown = "0.13.2"
+hashbrown = "0.14.3"
 regex = "1.7.2"
+fancy-regex = "0.12.0"
+num = "0.4.1"
