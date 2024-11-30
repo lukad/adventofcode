@@ -40,3 +40,25 @@ where
         iter.fold(Self::one(), |a, b| a.lcm(b))
     }
 }
+
+pub trait SignedModulo {
+    #[allow(unused)]
+    fn modulo(&self, n: Self) -> Self;
+}
+
+macro_rules! impl_signed_modulo {
+    ($($t:ty)*) => ($(
+      impl SignedModulo for $t {
+            fn modulo(&self, n: Self) -> Self {
+                let r = self % n;
+                if r < 0 {
+                    r + n
+                } else {
+                    r
+                }
+            }
+      }
+    )*)
+}
+
+impl_signed_modulo! { i8 i16 i32 i64 }

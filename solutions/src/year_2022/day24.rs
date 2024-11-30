@@ -4,27 +4,6 @@ use aoc::*;
 use glam::IVec2;
 use hashbrown::HashSet;
 
-pub trait SignedModulo {
-    fn modulo(&self, n: Self) -> Self;
-}
-
-macro_rules! impl_signed_modulo {
-    ($($t:ty)*) => ($(
-      impl SignedModulo for $t {
-            fn modulo(&self, n: Self) -> Self {
-                let r = self % n;
-                if r < 0 {
-                    r + n
-                } else {
-                    r
-                }
-            }
-      }
-    )*)
-}
-
-impl_signed_modulo! { i8 i16 i32 i64 }
-
 #[derive(Debug, Clone, PartialEq, Eq)]
 enum Cell {
     Empty,
